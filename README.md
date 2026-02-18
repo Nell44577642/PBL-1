@@ -1,6 +1,5 @@
 ### AI Tic-Tac-Toe Game
 
-MVP Status :
 Group Members : Bultez Charlotte, Ito-Russo Kana, Ribeiro Nell, Raux Lily
 
 ### 1. Project Overview
