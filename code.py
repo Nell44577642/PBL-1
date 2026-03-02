@@ -72,7 +72,7 @@ class TicTacToe:
             self.board[move[0]][move[1]] = "O"
             self.buttons[move[0]][move[1]].config(text="O", state="disabled")
 
-  def check_end(self):
+   def check_end(self):
         w = check_winner(self.board)
         if w:
             messagebox.showinfo("Fin", "Gagnant : " + w)
