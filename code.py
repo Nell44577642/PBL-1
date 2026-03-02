@@ -7,7 +7,7 @@ import math
 def check_winner(board):
     lines = board + [list(x) for x in zip(*board)]
     lines.append([board[i][i] for i in range(3)])
-    lines.append([board[i][2-i] for i in range(3)])
+    lines.append([board[i][2 - i] for i in range(3)])
 
     for line in lines:
         if all(c == "O" for c in line):
@@ -66,12 +66,14 @@ class TicTacToe:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Tic Tac Toe")
-        self.root.geometry("350x450")
+        self.root.geometry("400x500")
         self.root.resizable(False, False)
 
         self.mode = None
         self.difficulty = None
         self.current_player = "X"
+
+        self.symbols = {"X": "❌", "O": "⭕"}
 
         self.create_frames()
         self.show_frame(self.menu_frame)
@@ -82,21 +84,24 @@ class TicTacToe:
     def create_frames(self):
         self.menu_frame = tk.Frame(self.root)
         self.difficulty_frame = tk.Frame(self.root)
+        self.symbol_frame = tk.Frame(self.root)
         self.game_frame = tk.Frame(self.root)
 
         self.create_menu_screen()
         self.create_difficulty_screen()
+        self.create_symbol_screen()
         self.create_game_screen()
 
     def show_frame(self, frame):
-        for f in [self.menu_frame, self.difficulty_frame, self.game_frame]:
+        for f in [self.menu_frame, self.difficulty_frame,
+                  self.symbol_frame, self.game_frame]:
             f.pack_forget()
         frame.pack(expand=True)
 
 
     def create_menu_screen(self):
         tk.Label(self.menu_frame, text="Tic Tac Toe",
-                 font=("Arial", 22)).pack(pady=40)
+                 font=("Arial", 24)).pack(pady=50)
 
         tk.Button(self.menu_frame, text="Player vs Player",
                   width=20, height=2,
@@ -108,7 +113,7 @@ class TicTacToe:
 
     def start_pvp(self):
         self.mode = "PVP"
-        self.start_game()
+        self.show_frame(self.symbol_frame)
 
     def go_to_difficulty(self):
         self.mode = "AI"
@@ -118,7 +123,7 @@ class TicTacToe:
     def create_difficulty_screen(self):
         tk.Label(self.difficulty_frame,
                  text="Select Difficulty",
-                 font=("Arial", 18)).pack(pady=40)
+                 font=("Arial", 20)).pack(pady=40)
 
         tk.Button(self.difficulty_frame, text="Easy",
                   width=20, height=2,
@@ -137,6 +142,55 @@ class TicTacToe:
 
     def set_difficulty(self, level):
         self.difficulty = level
+        self.show_frame(self.symbol_frame)
+
+
+    def create_symbol_screen(self):
+
+        tk.Label(self.symbol_frame,
+                 text="Choose Player Symbols",
+                 font=("Arial", 20)).pack(pady=20)
+
+        self.available_symbols = ["❌", "⭕", "❤️", "⭐", "🔵", "🔺"]
+
+        self.player1_symbol = tk.StringVar(value=self.available_symbols[0])
+        self.player2_symbol = tk.StringVar(value=self.available_symbols[1])
+
+        tk.Label(self.symbol_frame, text="Player 1 Symbol").pack()
+        tk.OptionMenu(self.symbol_frame,
+                      self.player1_symbol,
+                      *self.available_symbols).pack(pady=5)
+
+        tk.Label(self.symbol_frame, text="Player 2 / AI Symbol").pack()
+        tk.OptionMenu(self.symbol_frame,
+                      self.player2_symbol,
+                      *self.available_symbols).pack(pady=5)
+
+        tk.Button(self.symbol_frame,
+                  text="Start Game",
+                  command=self.set_symbols).pack(pady=15)
+
+        tk.Button(self.symbol_frame,
+                  text="Back",
+                  command=self.go_back_symbols).pack()
+
+    def go_back_symbols(self):
+        if self.mode == "AI":
+            self.show_frame(self.difficulty_frame)
+        else:
+            self.show_frame(self.menu_frame)
+
+    def set_symbols(self):
+        if self.player1_symbol.get() == self.player2_symbol.get():
+            messagebox.showerror("Error",
+                                 "Players must choose different symbols!")
+            return
+
+        self.symbols = {
+            "X": self.player1_symbol.get(),
+            "O": self.player2_symbol.get()
+        }
+
         self.start_game()
 
 
@@ -150,7 +204,7 @@ class TicTacToe:
             for c in range(3):
                 btn = tk.Button(self.board_frame,
                                 text="",
-                                font=("Arial", 24),
+                                font=("Arial", 28),
                                 width=4,
                                 height=2,
                                 command=lambda r=r, c=c: self.play(r, c))
@@ -180,7 +234,8 @@ class TicTacToe:
             return
 
         self.board[r][c] = self.current_player
-        self.buttons[r][c].config(text=self.current_player)
+        self.buttons[r][c].config(
+            text=self.symbols[self.current_player])
 
         winner = check_winner(self.board)
         if winner:
@@ -211,12 +266,13 @@ class TicTacToe:
         self.current_player = "X"
 
     def random_move(self):
-        empty = [(r, c) for r in range(3) for c in range(3)
-                 if self.board[r][c] == ""]
+        empty = [(r, c) for r in range(3)
+                 for c in range(3) if self.board[r][c] == ""]
         if empty:
             r, c = random.choice(empty)
             self.board[r][c] = "O"
-            self.buttons[r][c].config(text="O")
+            self.buttons[r][c].config(
+                text=self.symbols["O"])
 
     def best_move(self, depth):
         best_score = -math.inf
@@ -235,14 +291,16 @@ class TicTacToe:
         if move:
             r, c = move
             self.board[r][c] = "O"
-            self.buttons[r][c].config(text="O")
+            self.buttons[r][c].config(
+                text=self.symbols["O"])
 
 
     def end_game(self, winner):
         if winner == "TIE":
             messagebox.showinfo("Game Over", "It's a Tie!")
         else:
-            messagebox.showinfo("Game Over", f"{winner} Wins!")
+            messagebox.showinfo("Game Over",
+                                f"{self.symbols[winner]} Wins!")
         self.reset_game()
 
 
