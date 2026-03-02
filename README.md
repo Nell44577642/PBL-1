@@ -82,6 +82,8 @@ Easy : Random move, Can lose easily
 Medium : Minimax depth = 2, Makes decent moves
 Difficult : Its often a Tie, impossible to win 
 
+You can choose the design of your player, cant have the same ( error message : "Players must choose different symbols") 
+
 ### 4.  Testing & Validation
 
 - The project was tested by:
@@ -113,4 +115,3 @@ No external libraries are required.
 Improve the design 
 Add an online mode 
 Implement a web version 
-Choose the design of your player 
