@@ -81,6 +81,7 @@ class TicTacToe:
         self.root.mainloop()
 
 
+
     def create_frames(self):
         self.menu_frame = tk.Frame(self.root)
         self.difficulty_frame = tk.Frame(self.root)
@@ -101,7 +102,7 @@ class TicTacToe:
 
     def create_menu_screen(self):
         tk.Label(self.menu_frame, text="Tic Tac Toe",
-                 font=("Arial", 24)).pack(pady=50)
+                 font=("Arial", 26)).pack(pady=40)
 
         tk.Button(self.menu_frame, text="Player vs Player",
                   width=20, height=2,
@@ -111,50 +112,21 @@ class TicTacToe:
                   width=20, height=2,
                   command=self.go_to_difficulty).pack(pady=10)
 
-    def start_pvp(self):
-        self.mode = "PVP"
-        self.show_frame(self.symbol_frame)
-
-    def go_to_difficulty(self):
-        self.mode = "AI"
-        self.show_frame(self.difficulty_frame)
-
-
-    def create_difficulty_screen(self):
-        tk.Label(self.difficulty_frame,
-                 text="Select Difficulty",
-                 font=("Arial", 20)).pack(pady=40)
-
-        tk.Button(self.difficulty_frame, text="Easy",
+        tk.Button(self.menu_frame, text="Customize Symbols",
                   width=20, height=2,
-                  command=lambda: self.set_difficulty("Easy")).pack(pady=10)
-
-        tk.Button(self.difficulty_frame, text="Medium",
-                  width=20, height=2,
-                  command=lambda: self.set_difficulty("Medium")).pack(pady=10)
-
-        tk.Button(self.difficulty_frame, text="Hard",
-                  width=20, height=2,
-                  command=lambda: self.set_difficulty("Hard")).pack(pady=10)
-
-        tk.Button(self.difficulty_frame, text="Back",
-                  command=lambda: self.show_frame(self.menu_frame)).pack(pady=20)
-
-    def set_difficulty(self, level):
-        self.difficulty = level
-        self.show_frame(self.symbol_frame)
+                  command=lambda: self.show_frame(self.symbol_frame)).pack(pady=10)
 
 
     def create_symbol_screen(self):
 
         tk.Label(self.symbol_frame,
-                 text="Choose Player Symbols",
-                 font=("Arial", 20)).pack(pady=20)
+                 text="Customize Symbols",
+                 font=("Arial", 22)).pack(pady=30)
 
         self.available_symbols = ["❌", "⭕", "❤️", "⭐", "🔵", "🔺"]
 
-        self.player1_symbol = tk.StringVar(value=self.available_symbols[0])
-        self.player2_symbol = tk.StringVar(value=self.available_symbols[1])
+        self.player1_symbol = tk.StringVar(value=self.symbols["X"])
+        self.player2_symbol = tk.StringVar(value=self.symbols["O"])
 
         tk.Label(self.symbol_frame, text="Player 1 Symbol").pack()
         tk.OptionMenu(self.symbol_frame,
@@ -167,20 +139,14 @@ class TicTacToe:
                       *self.available_symbols).pack(pady=5)
 
         tk.Button(self.symbol_frame,
-                  text="Start Game",
-                  command=self.set_symbols).pack(pady=15)
+                  text="Save",
+                  command=self.save_symbols).pack(pady=15)
 
         tk.Button(self.symbol_frame,
                   text="Back",
-                  command=self.go_back_symbols).pack()
+                  command=lambda: self.show_frame(self.menu_frame)).pack()
 
-    def go_back_symbols(self):
-        if self.mode == "AI":
-            self.show_frame(self.difficulty_frame)
-        else:
-            self.show_frame(self.menu_frame)
-
-    def set_symbols(self):
+    def save_symbols(self):
         if self.player1_symbol.get() == self.player2_symbol.get():
             messagebox.showerror("Error",
                                  "Players must choose different symbols!")
@@ -191,6 +157,41 @@ class TicTacToe:
             "O": self.player2_symbol.get()
         }
 
+        messagebox.showinfo("Saved", "Symbols updated successfully!")
+        self.show_frame(self.menu_frame)
+
+
+    def go_to_difficulty(self):
+        self.mode = "AI"
+        self.show_frame(self.difficulty_frame)
+
+    def create_difficulty_screen(self):
+        tk.Label(self.difficulty_frame,
+                 text="Select Difficulty",
+                 font=("Arial", 22)).pack(pady=40)
+
+        tk.Button(self.difficulty_frame, text="Easy",
+                  width=20, height=2,
+                  command=lambda: self.start_ai("Easy")).pack(pady=10)
+
+        tk.Button(self.difficulty_frame, text="Medium",
+                  width=20, height=2,
+                  command=lambda: self.start_ai("Medium")).pack(pady=10)
+
+        tk.Button(self.difficulty_frame, text="Hard",
+                  width=20, height=2,
+                  command=lambda: self.start_ai("Hard")).pack(pady=10)
+
+        tk.Button(self.difficulty_frame, text="Back",
+                  command=lambda: self.show_frame(self.menu_frame)).pack(pady=20)
+
+    def start_ai(self, level):
+        self.mode = "AI"
+        self.difficulty = level
+        self.start_game()
+
+    def start_pvp(self):
+        self.mode = "PVP"
         self.start_game()
 
 
@@ -221,7 +222,6 @@ class TicTacToe:
         self.reset_game()
         self.show_frame(self.game_frame)
 
-
     def reset_game(self):
         self.board = [["" for _ in range(3)] for _ in range(3)]
         self.current_player = "X"
@@ -242,10 +242,9 @@ class TicTacToe:
             self.end_game(winner)
             return
 
-        if self.mode == "AI":
-            if self.current_player == "X":
-                self.current_player = "O"
-                self.root.after(300, self.ai_move)
+        if self.mode == "AI" and self.current_player == "X":
+            self.current_player = "O"
+            self.root.after(300, self.ai_move)
         else:
             self.current_player = "O" if self.current_player == "X" else "X"
 
@@ -254,9 +253,9 @@ class TicTacToe:
         if self.difficulty == "Easy":
             self.random_move()
         elif self.difficulty == "Medium":
-            self.best_move(depth=2)
+            self.best_move(2)
         else:
-            self.best_move(depth=9)
+            self.best_move(9)
 
         winner = check_winner(self.board)
         if winner:
