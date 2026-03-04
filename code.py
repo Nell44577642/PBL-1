@@ -4,7 +4,7 @@ import random
 import math
 
 
-def check_winner(board):
+def check_winner(board):   #check if there is a winner (so horizontal,vertical and  diagonal)
     lines = board + [list(x) for x in zip(*board)]
     lines.append([board[i][i] for i in range(3)])
     lines.append([board[i][2 - i] for i in range(3)])
@@ -21,7 +21,7 @@ def check_winner(board):
     return None
 
 
-def evaluate(board):
+def evaluate(board):   #assign a numerical value to the bord state for the AI to understand 
     winner = check_winner(board)
     if winner == "O":
         return 1000
@@ -32,7 +32,7 @@ def evaluate(board):
     return 0
 
 
-def minimax(board, depth, is_max):
+def minimax(board, depth, is_max):   #plays out every possible moves and chose the best for a perfect opponent
     result = check_winner(board)
 
     if result is not None or depth == 0:
@@ -63,7 +63,7 @@ def minimax(board, depth, is_max):
 
 class TicTacToe:
 
-    def __init__(self):
+    def __init__(self):   # set up the main windows
         self.root = tk.Tk()
         self.root.title("Tic Tac Toe")
         self.root.geometry("400x500")
@@ -82,7 +82,7 @@ class TicTacToe:
 
 
 
-    def create_frames(self):
+    def create_frames(self):   # to have frames and not multiple windows 
         self.menu_frame = tk.Frame(self.root)
         self.difficulty_frame = tk.Frame(self.root)
         self.symbol_frame = tk.Frame(self.root)
@@ -93,14 +93,14 @@ class TicTacToe:
         self.create_symbol_screen()
         self.create_game_screen()
 
-    def show_frame(self, frame):
+    def show_frame(self, frame):    # only show the frame we are interested on 
         for f in [self.menu_frame, self.difficulty_frame,
                   self.symbol_frame, self.game_frame]:
             f.pack_forget()
         frame.pack(expand=True)
 
 
-    def create_menu_screen(self):
+    def create_menu_screen(self):  # create the menu windows
         tk.Label(self.menu_frame, text="Tic Tac Toe",
                  font=("Arial", 26)).pack(pady=40)
 
@@ -117,7 +117,7 @@ class TicTacToe:
                   command=lambda: self.show_frame(self.symbol_frame)).pack(pady=10)
 
 
-    def create_symbol_screen(self):
+    def create_symbol_screen(self): #create a choice for different icone 
 
         tk.Label(self.symbol_frame,
                  text="Customize Symbols",
@@ -146,7 +146,7 @@ class TicTacToe:
                   text="Back",
                   command=lambda: self.show_frame(self.menu_frame)).pack()
 
-    def save_symbols(self):
+    def save_symbols(self):  # save the symbols you choose to show it every move 
         if self.player1_symbol.get() == self.player2_symbol.get():
             messagebox.showerror("Error",
                                  "Players must choose different symbols!")
@@ -161,11 +161,11 @@ class TicTacToe:
         self.show_frame(self.menu_frame)
 
 
-    def go_to_difficulty(self):
+    def go_to_difficulty(self):  # set the difficulty of the AI based on your choice 
         self.mode = "AI"
         self.show_frame(self.difficulty_frame)
 
-    def create_difficulty_screen(self):
+    def create_difficulty_screen(self):   # create difficulty menu 
         tk.Label(self.difficulty_frame,
                  text="Select Difficulty",
                  font=("Arial", 22)).pack(pady=40)
@@ -185,17 +185,17 @@ class TicTacToe:
         tk.Button(self.difficulty_frame, text="Back",
                   command=lambda: self.show_frame(self.menu_frame)).pack(pady=20)
 
-    def start_ai(self, level):
+    def start_ai(self, level):  # tell the program we are playing against AI
         self.mode = "AI"
         self.difficulty = level
         self.start_game()
 
-    def start_pvp(self):
+    def start_pvp(self):#tell the program that two human are playing
         self.mode = "PVP"
         self.start_game()
 
 
-    def create_game_screen(self):
+    def create_game_screen(self):  # create game screen with restart and menu
         self.board_frame = tk.Frame(self.game_frame)
         self.board_frame.pack(pady=20)
 
@@ -218,18 +218,18 @@ class TicTacToe:
         tk.Button(self.game_frame, text="Main Menu",
                   command=lambda: self.show_frame(self.menu_frame)).pack()
 
-    def start_game(self):
+    def start_game(self): #start a new game 
         self.reset_game()
         self.show_frame(self.game_frame)
 
-    def reset_game(self):
+    def reset_game(self):   #clear the game bord
         self.board = [["" for _ in range(3)] for _ in range(3)]
         self.current_player = "X"
         for r in range(3):
             for c in range(3):
                 self.buttons[r][c].config(text="", state="normal")
 
-    def play(self, r, c):
+    def play(self, r, c):   #is triggered when the player click on a button
         if self.board[r][c] != "":
             return
 
@@ -249,7 +249,7 @@ class TicTacToe:
             self.current_player = "O" if self.current_player == "X" else "X"
 
 
-    def ai_move(self):
+    def ai_move(self): #to set the AI move in function of the difficulty 
         if self.difficulty == "Easy":
             self.random_move()
         elif self.difficulty == "Medium":
@@ -264,7 +264,7 @@ class TicTacToe:
 
         self.current_player = "X"
 
-    def random_move(self):
+    def random_move(self):  #let the AI play a random move
         empty = [(r, c) for r in range(3)
                  for c in range(3) if self.board[r][c] == ""]
         if empty:
@@ -273,7 +273,7 @@ class TicTacToe:
             self.buttons[r][c].config(
                 text=self.symbols["O"])
 
-    def best_move(self, depth):
+    def best_move(self, depth): # let the AI play in function of different depth chossen, in this code we have 2 and 9
         best_score = -math.inf
         move = None
 
@@ -294,7 +294,7 @@ class TicTacToe:
                 text=self.symbols["O"])
 
 
-    def end_game(self, winner):
+    def end_game(self, winner):   #give a pop up window to indicate who is the winner
         if winner == "TIE":
             messagebox.showinfo("Game Over", "It's a Tie!")
         else:
